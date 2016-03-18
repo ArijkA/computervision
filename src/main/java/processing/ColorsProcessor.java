@@ -18,13 +18,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
-import static utils.Colors.Palette;
+import static utils.Colors.getRealColorsPalette;
 
 /**
  * Created by npakhomova on 3/16/16.
  */
 public class ColorsProcessor {
-
 
 
     public static TreeSet<ColorDescription> getColorDescriptions(File imageFile) {
@@ -63,26 +62,29 @@ public class ColorsProcessor {
         // we are in this cycle Palete.size * #colorInPicture * #Pictures
         for (int j = 0; j < colors.size(); j++) {
             double[] color = colors.get(j);
-            for (double[] doubles : Palette.keySet()) {
+            String colorNameForDescription = null;
+            double[] lab1 = new double[]{
+                    (int)(color[0] / 2.55),
+                    color[1] - 128,
+                    color[2] - 128
+            };
+            for (String colorName : getRealColorsPalette().keySet()) {
+                for (double[] realColor : getRealColorsPalette().get(colorName)) {
 
-                double[] lab1 = new double[]{
-                        color[0] / 2.55,
-                        color[1] - 128,
-                        color[2] - 128
-                };
 
-                double[] lab2 = new double[]{
-                        doubles[0],
-                        doubles[1],
-                        doubles[2]
-                };
+                    double[] lab2 = new double[]{
+                            realColor[0],
+                            realColor[1],
+                            realColor[2]
+                    };
 
-                dist = DeltaE.deltaE2000(lab1, lab2);
+                    dist = DeltaE.deltaE2000(lab1, lab2);
 
-                if (min > dist) {
-                    min = dist;
-                    key = doubles;
-//                    howItMatched = lab1;
+                    if (min > dist) {
+                        min = dist;
+                        key = realColor;
+                        colorNameForDescription = colorName;
+                    }
                 }
             }
             if (key != null) {
@@ -93,14 +95,8 @@ public class ColorsProcessor {
 
                 int persent = (int) (cluster.counts.get(j) / sumOfPixels * 100);
 
-                double[] lab1 = new double[]{
-                        (int) (color[0] / 2.55),
-                        color[1] - 128,
-                        color[2] - 128
-                };
-
-                ColorDescription colorDescription = new ColorDescription(Palette.get(key), lab1, persent);
-                if (colorDescriptionsMap.containsKey(colorDescription.getName())){
+                ColorDescription colorDescription = new ColorDescription(colorNameForDescription, lab1, persent);
+                if (colorDescriptionsMap.containsKey(colorDescription.getName())) {
                     colorDescriptionsMap.get(colorDescription.getName()).merge(colorDescription);
                 } else {
                     colorDescriptionsMap.put(colorDescription.getName(), colorDescription);
@@ -113,7 +109,7 @@ public class ColorsProcessor {
 
         TreeSet<ColorDescription> colorDescriptions = new TreeSet<>();
         colorDescriptions.addAll(colorDescriptionsMap.values());
-        return colorDescriptions ;
+        return colorDescriptions;
     }
 
     private static ImageClusterResult cluster(Mat imagePreparedByMask, Mat mask, int k, ArrayList<Integer> nonZeroIndexes) {

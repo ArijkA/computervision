@@ -30,6 +30,8 @@ public class ColorDescription implements Comparable<ColorDescription> , Serializ
         this.labColorDesctiption = "[ "+ joiner.join( ArrayUtils.toObject(colorLab) ) +" ]";
     }
 
+   
+
     public double getPercent() {
         return percent;
     }
@@ -88,9 +90,9 @@ public class ColorDescription implements Comparable<ColorDescription> , Serializ
     public void setDistanceFromColorNormal(List<double[]> colorNormalVariations) {
         double min = Double.MAX_VALUE;
         for ( double[] color: colors) {
-            for (double[] colorNormal : colorNormalVariations) {
-                double diff = DeltaE.deltaE2000(color, colorNormal);
-                min = diff < min ? diff : min;
+        for (double[] colorNormal : colorNormalVariations){
+            double diff = DeltaE.deltaE2000(color, colorNormal);
+            min = diff < min? diff : min;
 
             }
         }
@@ -105,4 +107,16 @@ public class ColorDescription implements Comparable<ColorDescription> , Serializ
     public String getLabColorDesctiption() {
         return labColorDesctiption;
     }
+
+    public String getLabColorDesctiption() {
+        return labColorDesctiption;
+    }
+
+//    public static class ColorPoint{
+//        double[] colorCode;
+//        int percenct;
+//        double
+//
+//
+//    }
 }
